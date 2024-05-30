@@ -28,7 +28,6 @@
 /*               Hand crafted config file for Windows               */
 /* ================================================================ */
 
-
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 /* Bypass Platform SDK requirements */
 #define ALLOW_MSVC6_WITHOUT_PSDK 1
