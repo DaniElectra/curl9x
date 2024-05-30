@@ -104,15 +104,17 @@ int Curl_thread_join(curl_thread_t *hnd)
 curl_thread_t Curl_thread_create(unsigned int (CURL_STDCALL *func) (void *),
                                  void *arg)
 {
-#ifdef _WIN32_WCE
+#if (defined(_WIN32_WCE) || (defined(_MSC_VER) && (_MSC_VER < 1300)))
   typedef HANDLE curl_win_thread_handle_t;
 #else
   typedef uintptr_t curl_win_thread_handle_t;
 #endif
   curl_thread_t t;
   curl_win_thread_handle_t thread_handle;
-#ifdef _WIN32_WCE
-  thread_handle = CreateThread(NULL, 0, func, arg, 0, NULL);
+#if (defined(_WIN32_WCE) || (defined(_MSC_VER) && (_MSC_VER < 1300)))
+  /* Windows NT 3.51 requires a thread ID output */
+  DWORD thread_id = 0;
+  thread_handle = CreateThread(NULL, 0, func, arg, 0, &thread_id);
 #else
   thread_handle = _beginthreadex(NULL, 0, func, arg, 0, NULL);
 #endif
