@@ -45,13 +45,24 @@ wchar_t *curlx_convert_UTF8_to_wchar(const char *str_utf8)
   wchar_t *str_w = NULL;
 
   if(str_utf8) {
+    /* Windows NT 3.51 DOES NOT support UTF-8 conversion, so we have to use ANSI and hope for the best */
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+    int str_w_len = MultiByteToWideChar(CP_ACP, MB_ERR_INVALID_CHARS,
+                                        str_utf8, -1, NULL, 0);
+#else
     int str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS,
                                         str_utf8, -1, NULL, 0);
+#endif
     if(str_w_len > 0) {
       str_w = malloc(str_w_len * sizeof(wchar_t));
       if(str_w) {
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+        if(MultiByteToWideChar(CP_ACP, 0, str_utf8, -1, str_w,
+                               str_w_len) == 0) {
+#else
         if(MultiByteToWideChar(CP_UTF8, 0, str_utf8, -1, str_w,
                                str_w_len) == 0) {
+#endif
           free(str_w);
           return NULL;
         }
@@ -67,13 +78,23 @@ char *curlx_convert_wchar_to_UTF8(const wchar_t *str_w)
   char *str_utf8 = NULL;
 
   if(str_w) {
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+    int bytes = WideCharToMultiByte(CP_ACP, 0, str_w, -1,
+                                    NULL, 0, NULL, NULL);
+#else
     int bytes = WideCharToMultiByte(CP_UTF8, 0, str_w, -1,
                                     NULL, 0, NULL, NULL);
+#endif
     if(bytes > 0) {
       str_utf8 = malloc(bytes);
       if(str_utf8) {
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+        if(WideCharToMultiByte(CP_ACP, 0, str_w, -1, str_utf8, bytes,
+                               NULL, NULL) == 0) {
+#else
         if(WideCharToMultiByte(CP_UTF8, 0, str_w, -1, str_utf8, bytes,
                                NULL, NULL) == 0) {
+#endif
           free(str_utf8);
           return NULL;
         }

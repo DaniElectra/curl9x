@@ -285,8 +285,14 @@ size_t tool_write_cb(char *buffer, size_t sz, size_t nmemb, void *userdata)
       if(complete) {
         WCHAR prefix[3] = {0};  /* UTF-16 (1-2 WCHARs) + NUL */
 
+        /* Windows NT 3.51 DOES NOT support UTF-8 conversion, so we have to use ANSI and hope for the best */
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+        if(MultiByteToWideChar(CP_ACP, 0, (LPCSTR)outs->utf8seq, -1,
+                               prefix, sizeof(prefix)/sizeof(prefix[0]))) {
+#else
         if(MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)outs->utf8seq, -1,
                                prefix, sizeof(prefix)/sizeof(prefix[0]))) {
+#endif
           DEBUGASSERT(prefix[2] == L'\0');
           if(!WriteConsoleW(
               (HANDLE) fhnd,
@@ -332,7 +338,11 @@ size_t tool_write_cb(char *buffer, size_t sz, size_t nmemb, void *userdata)
 
     if(rlen) {
       /* calculate buffer size for wide characters */
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+      wc_len = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)rbuf, rlen, NULL, 0);
+#else
       wc_len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)rbuf, rlen, NULL, 0);
+#endif
       if(!wc_len)
         return CURL_WRITEFUNC_ERROR;
 
@@ -340,8 +350,13 @@ size_t tool_write_cb(char *buffer, size_t sz, size_t nmemb, void *userdata)
       if(!wc_buf)
         return CURL_WRITEFUNC_ERROR;
 
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+      wc_len = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)rbuf, rlen, wc_buf,
+                                   wc_len);
+#else
       wc_len = MultiByteToWideChar(CP_UTF8, 0, (LPCSTR)rbuf, rlen, wc_buf,
                                    wc_len);
+#endif
       if(!wc_len) {
         free(wc_buf);
         return CURL_WRITEFUNC_ERROR;
