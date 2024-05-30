@@ -31,11 +31,14 @@
 /*
  * Disable Visual Studio warnings:
  * 4127 "conditional expression is constant"
+ * 4201 "nonstandard extension used"
+ * 4206 "nonstandard extension used"
  */
 #ifdef _MSC_VER
 #pragma warning(disable:4127)
+#pragma warning(disable:4201)
+#pragma warning(disable:4206)
 #endif
-
 /*
  * Define WIN32 when build target is Win32 API
  */

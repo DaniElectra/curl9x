@@ -28,6 +28,32 @@
 /*               Hand crafted config file for Windows               */
 /* ================================================================ */
 
+
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+/* Bypass Platform SDK requirements */
+#define ALLOW_MSVC6_WITHOUT_PSDK 1
+
+/* Build for Windows NT 3.51 */
+#ifdef _WIN32_WINNT
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x351
+#endif
+
+/* MSVC6 doesn't have ADDRESS_FAMILY defined */
+#ifndef ADDRESS_FAMILY
+#define ADDRESS_FAMILY short
+#endif
+
+/* Define missing function LongToHandle */
+#ifndef LongToHandle
+#define LongToHandle(h) ((HANDLE)(h))
+#endif
+
+/* Disable NTLM from build */
+#define CURL_DISABLE_NTLM 1
+
+#endif
+
 /* ---------------------------------------------------------------- */
 /*                          HEADER FILES                            */
 /* ---------------------------------------------------------------- */
@@ -600,8 +626,8 @@ Vista
 #  define CURL_DISABLE_LDAP 1
 #endif
 
-/* Define to use the Windows crypto library. */
-#if !defined(CURL_WINDOWS_APP)
+/* Define to use the Windows crypto library. Disabled for NT 3.51 */
+#if (!defined(CURL_WINDOWS_APP) && (!defined(_MSC_VER) || !(_MSC_VER < 1300)))
 #define USE_WIN32_CRYPTO
 #endif
 
