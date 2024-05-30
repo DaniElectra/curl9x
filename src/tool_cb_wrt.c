@@ -366,12 +366,23 @@ size_t tool_write_cb(char *buffer, size_t sz, size_t nmemb, void *userdata)
         return CURL_WRITEFUNC_ERROR;
       }
 
+      /* This error is getting triggered on NT 3.51 for unknown reasons */
+      /* even though the data is getting written, so we'll just ignore it */
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+      if(!WriteConsoleW(
+          (HANDLE) fhnd,
+          wc_buf,
+          wc_len,
+          NULL,
+          NULL) && WSAGetLastError() != ERROR_INVALID_ACCESS) {
+#else
       if(!WriteConsoleW(
           (HANDLE) fhnd,
           wc_buf,
           wc_len,
           NULL,
           NULL)) {
+#endif
         free(wc_buf);
         return CURL_WRITEFUNC_ERROR;
       }
