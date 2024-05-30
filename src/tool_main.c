@@ -235,15 +235,6 @@ int main(int argc, char *argv[])
   tool_init_stderr();
 
 #ifdef WIN32
-  /* Undocumented diagnostic option to list the full paths of all loaded
-     modules. This is purposely pre-init. */
-  if(argc == 2 && !_tcscmp(argv[1], _T("--dump-module-paths"))) {
-    struct curl_slist *item, *head = GetLoadedModulePaths();
-    for(item = head; item; item = item->next)
-      printf("%s\n", item->data);
-    curl_slist_free_all(head);
-    return head ? 0 : 1;
-  }
   /* win32_init must be called before other init routines. */
   result = win32_init();
   if(result) {
