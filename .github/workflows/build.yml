@@ -1,0 +1,139 @@
+# Adapted from https://github.com/itsmattkc/dotnet9x/blob/master/.github/workflows/ci.yml
+name: Build
+
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+      - '.azure-pipelines.yml'
+      - '.circleci/**'
+      - '.cirrus.yml'
+      - 'appveyor.*'
+      - 'packages/**'
+      - 'plan9/**'
+      - 'projects/**'
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - '.azure-pipelines.yml'
+      - '.circleci/**'
+      - '.cirrus.yml'
+      - 'appveyor.*'
+      - 'packages/**'
+      - 'plan9/**'
+      - 'projects/**'
+
+jobs:
+  msvc6-release-static:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/checkout@v3
+      with:
+        repository: 'itsmattkc/msvc600'
+        path: msvc600
+
+    - name: Build curl
+      shell: cmd
+      run: |
+        call .\msvc600\VC98\bin\VCVARS32.BAT x86
+        call .\buildconf.bat
+        cd winbuild
+        nmake /f Makefile.vc mode=static ENABLE_SSPI=no ENABLE_IPV6=no ENABLE_IDN=no ENABLE_SCHANNEL=no GEN_PDB=yes RTLIBCFG=static
+        cd ..
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: curl-msvc6-release-static
+        path: |
+          builds/libcurl-vc6-x86-release-static/curl.exe
+          builds/libcurl-vc6-x86-release-static/curl.pdb
+
+  msvc6-release-dll:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/checkout@v3
+      with:
+        repository: 'itsmattkc/msvc600'
+        path: msvc600
+
+    - name: Build curl
+      shell: cmd
+      run: |
+        call .\msvc600\VC98\bin\VCVARS32.BAT x86
+        call .\buildconf.bat
+        cd winbuild
+        nmake /f Makefile.vc mode=dll ENABLE_SSPI=no ENABLE_IPV6=no ENABLE_IDN=no ENABLE_SCHANNEL=no GEN_PDB=yes RTLIBCFG=static
+        cd ..
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: curl-msvc6-release-dll
+        path: |
+          builds/libcurl-vc6-x86-release-dll/curl.exe
+          builds/libcurl-vc6-x86-release-dll/curl.pdb
+          builds/libcurl-vc6-x86-release-dll/libcurl.dll
+
+  msvc6-debug-static:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/checkout@v3
+      with:
+        repository: 'itsmattkc/msvc600'
+        path: msvc600
+
+    - name: Build curl
+      shell: cmd
+      run: |
+        call .\msvc600\VC98\bin\VCVARS32.BAT x86
+        call .\buildconf.bat
+        cd winbuild
+        nmake /f Makefile.vc mode=static ENABLE_SSPI=no ENABLE_IPV6=no ENABLE_IDN=no ENABLE_SCHANNEL=no DEBUG=yes GEN_PDB=yes RTLIBCFG=static
+        cd ..
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: curl-msvc6-debug-static
+        path: |
+          builds/libcurl-vc6-x86-debug-static/curl.exe
+          builds/libcurl-vc6-x86-debug-static/curl.pdb
+
+  msvc6-debug-dll:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/checkout@v3
+      with:
+        repository: 'itsmattkc/msvc600'
+        path: msvc600
+
+    - name: Build curl
+      shell: cmd
+      run: |
+        call .\msvc600\VC98\bin\VCVARS32.BAT x86
+        call .\buildconf.bat
+        cd winbuild
+        nmake /f Makefile.vc mode=dll ENABLE_SSPI=no ENABLE_IPV6=no ENABLE_IDN=no ENABLE_SCHANNEL=no DEBUG=yes GEN_PDB=yes RTLIBCFG=static
+        cd ..
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: curl-msvc6-debug-dll
+        path: |
+          builds/libcurl-vc6-x86-debug-dll/curl.exe
+          builds/libcurl-vc6-x86-debug-dll/curl.pdb
+          builds/libcurl-vc6-x86-debug-dll/libcurl_debug.dll
