@@ -116,6 +116,10 @@ int tool_seek_cb(void *userdata, curl_off_t offset, int whence)
 #  define _get_osfhandle(fd) (fd)
 #endif
 
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+#define intptr_t HANDLE
+#endif
+
 /*
  * Truncate a file handle at a 64-bit position 'where'.
  */
@@ -132,5 +136,9 @@ int tool_ftruncate64(int fd, curl_off_t where)
 
   return 0;
 }
+
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+#undef intptr_t
+#endif
 
 #endif /* USE_TOOL_FTRUNCATE */

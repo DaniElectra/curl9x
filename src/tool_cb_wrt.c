@@ -147,6 +147,10 @@ bool tool_create_output_file(struct OutStruct *outs,
   return TRUE;
 }
 
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+#define intptr_t HANDLE
+#endif
+
 /*
 ** callback for CURLOPT_WRITEFUNCTION
 */
@@ -398,3 +402,7 @@ size_t tool_write_cb(char *buffer, size_t sz, size_t nmemb, void *userdata)
 
   return rc;
 }
+
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
+#undef intptr_t
+#endif
